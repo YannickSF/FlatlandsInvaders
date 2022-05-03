@@ -14,3 +14,5 @@ Jeux d'arcade en python
 --- 
 
 ## Préférences de jeu : 
+
+- ouvrir le fichier : `preferences.py` et éditer les touches à votre convenance. 
