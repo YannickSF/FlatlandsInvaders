@@ -6,7 +6,7 @@ from src.powers import PowerEnemy
 
 class Enemy(pygame.sprite.Sprite):
     MAX_HEALTH = 20
-    VELOCITY = 1
+    VELOCITY = 2
     HIT = 0
     XP = 0
 
@@ -80,10 +80,11 @@ class Alien(Enemy):
     HIT = 5
     XP = 20
 
-    def __init__(self, game):
+    def __init__(self, game, add_speed=None):
         super().__init__('assets/enemies/alien.bmp', game)
 
         self.health = self.MAX_HEALTH
+        self.VELOCITY += add_speed
 
 
 class Alien1(Enemy):
@@ -92,10 +93,11 @@ class Alien1(Enemy):
     HIT = 10
     XP = 50
 
-    def __init__(self, game):
+    def __init__(self, game, add_speed=None):
         super().__init__('assets/enemies/alien1.bmp', game)
 
         self.health = self.MAX_HEALTH
+        self.VELOCITY += add_speed
 
 
 class Alien2(Enemy):
@@ -104,10 +106,11 @@ class Alien2(Enemy):
     HIT = 15
     XP = 100
 
-    def __init__(self, game):
+    def __init__(self, game, add_speed=None):
         super().__init__('assets/enemies/alien2.bmp', game)
 
         self.health = self.MAX_HEALTH
+        self.VELOCITY += add_speed
 
     def lambda_health_position(self):
         return [self.rect.x - 10, self.rect.y - 10, self.health, 5]
@@ -122,10 +125,11 @@ class Alien3(Enemy):
     HIT = 30
     XP = 150
 
-    def __init__(self, game):
+    def __init__(self, game, add_speed=None):
         super().__init__('assets/enemies/alien3.bmp', game)
 
         self.health = self.MAX_HEALTH
+        self.VELOCITY += add_speed
 
     def lambda_health_position(self):
         return [self.rect.x - 15, self.rect.y - 10, self.health, 5]
@@ -140,10 +144,11 @@ class Boss1(Enemy):
     HIT = 30
     XP = 1000
 
-    def __init__(self, game):
+    def __init__(self, game, add_speed=None):
         super().__init__('assets/enemies/boss1.bmp', game)
 
         self.health = self.MAX_HEALTH
+        self.VELOCITY += add_speed
 
         self.moov_period = 40
         self.attack_period = 20

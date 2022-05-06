@@ -1,6 +1,6 @@
 
 from pygame.locals import *
-from src.variables import *
+from src.variables import GAME_VARIABLES
 from src.characters import Red
 from src.powers import *
 from src.enemies import *
@@ -39,8 +39,7 @@ class Game:
         self.items = pygame.sprite.Group()
 
         self.current_lvl = 0
-        self.lvl_N = INIT_LVL_N
-        self.lvl_N1 = INIT_LVL_N1
+        self.lvl_N1 = GAME_VARIABLES.INIT_LVL_N1
         self.score = 0
         self.xp = 0
 
@@ -120,13 +119,13 @@ class Game:
         fetch_line1 = pygame.font.SysFont("monospace", 16)
         #
         fetch_text1 = fetch_line1.render(
-            "|{0}[{1}] |H[{2:02d}/{3}] |Ms[{4}] |N:{5} |N1:{6}"
+            "|{0}[{1}] |H[{2:02d}/{3}] |Ms[{4}] |N1:{5}"
                 .format(self.player.NAME,
                         self.current_lvl,
                         self.player.health,
                         self.player.MAX_HEALTH,
                         self.player.VELOCITY + self.player.boost_ms,
-                        self.lvl_N, self.lvl_N1
+                        self.lvl_N1
                         ),
             1, (255, 255, 255))
 
@@ -246,15 +245,15 @@ class Game:
 
     def _init_level(self):
         self.current_lvl = 0
-        self.lvl_N = INIT_LVL_N
-        self.lvl_N1 = INIT_LVL_N1
+        self.lvl_N1 = GAME_VARIABLES.INIT_LVL_N1
 
     def update_level(self):
-        if self.lvl_N <= self.lvl_N1 < self.xp:
+        if self.current_lvl % 10 == 0 and self.current_lvl > 0:
+            GAME_VARIABLES.evolve_lvl_gap()
+
+        if self.lvl_N1 < self.xp:
             self.current_lvl += 1
-            tmp = self.lvl_N1
-            self.lvl_N1 += self.lvl_N
-            self.lvl_N = tmp
+            self.lvl_N1 += GAME_VARIABLES.LVL_GAP
 
     def spawn_items(self, item_type, sprite=None):
 
@@ -295,194 +294,54 @@ class Game:
 
     def spawn_enemies(self):
 
-        if self.cycle_alien == PERIOD_ALIEN:
-            if self.current_lvl == 0:
-                for i in range(random.randint(1, 3)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
+        if self.current_lvl % 5 == 0 and self.current_lvl != 0:
+            GAME_VARIABLES.evolve_enemy_speed(self.current_lvl)
 
-                # Lvl Boss
-            if self.current_lvl == 1:
+        if self.current_lvl % 10 == 0 and self.current_lvl != 0:
+            GAME_VARIABLES.evolve_enemy_spawn_zone(self.current_lvl)
 
-                for i in range(random.randint(1, 4)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
+        if self.current_lvl % 5 == 0 and self.current_lvl >= 10:
+            GAME_VARIABLES.evolve_enemy_spawn_number(self.current_lvl)
 
-            if self.current_lvl == 2:
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
+        if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD == 0:
+            for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
+                aln = Alien(self, GAME_VARIABLES.ENEMY_SPEED)
+                aln.rect.y = 50
+                aln.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
+                self.enemies.add(aln)
 
-                if self.spawn_chance(1, 3):
-                    for i in range(random.randint(0, 2)):
-                        aln1 = Alien1(self)
-                        aln1.rect.y = 50
-                        aln1.rect.x = random.randint(20, 980)
-                        self.enemies.add(aln1)
+        if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD1 == 0:
+            for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
+                aln1 = Alien1(self, GAME_VARIABLES.ENEMY_SPEED)
+                aln1.rect.y = 50
+                aln1.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
+                self.enemies.add(aln1)
 
-            if self.current_lvl == 3:
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
-
-                if self.spawn_chance(1, 3):
-                    for i in range(random.randint(0, 4)):
-                        aln1 = Alien1(self)
-                        aln1.rect.y = 50
-                        aln1.rect.x = random.randint(20, 980)
-                        self.enemies.add(aln1)
-
-            if self.current_lvl == 4:
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
-
-                for i in range(random.randint(0, 3)):
-                    aln1 = Alien1(self)
-                    aln1.rect.y = 50
-                    aln1.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln1)
-
-                if self.spawn_chance(1, 4):
-                    for i in range(random.randint(0, 1)):
-                        aln2 = Alien2(self)
+        if self.current_lvl > 7:
+            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD2 == 0:
+                if self.spawn_chance(GAME_VARIABLES.SPAWN_CHANCE_MINIMAL, GAME_VARIABLES.SPAWN_CHANCE_MAXIMAL):
+                    for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER_1)):
+                        aln2 = Alien2(self, GAME_VARIABLES.ENEMY_SPEED)
                         aln2.rect.y = 50
-                        aln2.rect.x = random.randint(20, 980)
+                        aln2.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
                         self.enemies.add(aln2)
 
-            if self.current_lvl == 5:
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
-
-                for i in range(random.randint(0, 3)):
-                    aln1 = Alien1(self)
-                    aln1.rect.y = 50
-                    aln1.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln1)
-
-                if self.spawn_chance(1, 4):
-                    for i in range(random.randint(0, 3)):
-                        aln2 = Alien2(self)
-                        aln2.rect.y = 50
-                        aln2.rect.x = random.randint(20, 980)
-                        self.enemies.add(aln2)
-
-            if self.current_lvl == 6:
-
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
-
-                for i in range(random.randint(0, 5)):
-                    aln1 = Alien1(self)
-                    aln1.rect.y = 50
-                    aln1.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln1)
-
-                if self.spawn_chance(1, 4):
-                    for i in range(random.randint(0, 3)):
-                        aln2 = Alien2(self)
-                        aln2.rect.y = 50
-                        aln2.rect.x = random.randint(20, 980)
-                        self.enemies.add(aln2)
-
-            if self.current_lvl == 7:
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
-
-                for i in range(random.randint(1, 5)):
-                    aln1 = Alien1(self)
-                    aln1.rect.y = 50
-                    aln1.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln1)
-
-                for i in range(random.randint(0, 2)):
-                    aln2 = Alien2(self)
-                    aln2.rect.y = 50
-                    aln2.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln2)
-
-            if self.current_lvl == 8:
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
-
-                for i in range(random.randint(1, 5)):
-                    aln1 = Alien1(self)
-                    aln1.rect.y = 50
-                    aln1.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln1)
-
-                for i in range(random.randint(0, 4)):
-                    aln2 = Alien2(self)
-                    aln2.rect.y = 50
-                    aln2.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln2)
-
-                if self.spawn_chance(1, 4):
-                    for i in range(random.randint(0, 1)):
-                        aln3 = Alien3(self)
+        if self.current_lvl > 12:
+            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD2 == 0:
+                if self.spawn_chance(GAME_VARIABLES.SPAWN_CHANCE_MINIMAL, GAME_VARIABLES.SPAWN_CHANCE_MAXIMAL):
+                    for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER_1)):
+                        aln3 = Alien3(self, GAME_VARIABLES.ENEMY_SPEED)
                         aln3.rect.y = 50
-                        aln3.rect.x = random.randint(20, 980)
+                        aln3.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
                         self.enemies.add(aln3)
 
-            if self.current_lvl == 9:
-                for i in range(random.randint(1, 5)):
-                    aln = Alien(self)
-                    aln.rect.y = 50
-                    aln.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln)
+        if self.current_lvl % 10 == 0 and self.current_lvl > 0:
+            for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
+                boss = Boss1(self, GAME_VARIABLES.ENEMY_SPEED)
+                boss.rect.y = 70
+                boss.rect.x = 460
+                self.enemies.add(boss)
 
-                for i in range(random.randint(1, 5)):
-                    aln1 = Alien1(self)
-                    aln1.rect.y = 50
-                    aln1.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln1)
-
-                for i in range(random.randint(1, 4)):
-                    aln2 = Alien2(self)
-                    aln2.rect.y = 50
-                    aln2.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln2)
-
-                for i in range(random.randint(0, 3)):
-                    aln3 = Alien3(self)
-                    aln3.rect.y = 50
-                    aln3.rect.x = random.randint(20, 980)
-                    self.enemies.add(aln3)
-
-            if self.current_lvl == 10:
-                exist = False
-                for e in self.enemies:
-                    if type(e) == Boss1:
-                        exist = True
-                if not exist:
-                    boss = Boss1(self)
-                    boss.rect.y = 70
-                    boss.rect.x = 460
-                    self.enemies.add(boss)
-
-            # manage period here
             return True
 
         return False
@@ -519,8 +378,7 @@ class Game:
         self.items = pygame.sprite.Group()
 
         self.current_lvl = 0
-        self.lvl_N = INIT_LVL_N
-        self.lvl_N1 = INIT_LVL_N1
+        self.lvl_N1 = GAME_VARIABLES.INIT_LVL_N1
         self.score = 0
         self.xp = 0
 
@@ -590,7 +448,8 @@ class Game:
 
         # manage enemies
         self.cycle_alien += 1
-        if self.spawn_enemies():
+        self.spawn_enemies()
+        if self.cycle_alien == GAME_VARIABLES.STOP_PERIOD:
             self.cycle_alien = 0
 
         for enemy in self.enemies:
@@ -613,15 +472,15 @@ class Game:
         self.cycle_power_z += 1
         self.cycle_power_e += 1
         self.cycle_power_r += 1
-        if self.cycle_power_z == PERIOD_POWER_Z:
+        if self.cycle_power_z == GAME_VARIABLES.PERIOD_POWER_Z:
             self.spawn_items(ItemPowerZ.NAME)
             self.cycle_power_z = 0
 
-        if self.cycle_power_e == PERIOD_POWER_E:
+        if self.cycle_power_e == GAME_VARIABLES.PERIOD_POWER_E:
             self.spawn_items(ItemPowerE.NAME)
             self.cycle_power_e = 0
 
-        if self.cycle_power_r == PERIOD_POWER_R:
+        if self.cycle_power_r == GAME_VARIABLES.PERIOD_POWER_R:
             self.spawn_items(ItemPowerR.NAME)
             self.cycle_power_r = 0
 
