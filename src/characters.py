@@ -1,11 +1,12 @@
 
 from src.powers import *
 from src.items import *
+from src.variables import GAME_VARIABLES
 
 
 class Player(pygame.sprite.Sprite):
     MAX_HEALTH = 100
-    VELOCITY = 3
+    VELOCITY = 2
 
     def __init__(self, image):
         super().__init__()
@@ -45,10 +46,10 @@ class Player(pygame.sprite.Sprite):
         return self.VELOCITY + self.boost_ms
 
     def lambda_health_position(self):
-        return [500, 15, self.health, 20]
+        return [540, 15, self.health, 20]
 
     def lambda_max_health_position(self):
-        return [500, 15, self.MAX_HEALTH, 20]
+        return [540, 15, self.MAX_HEALTH, 20]
 
     def update_health(self, game):
         back_bar_color = (60, 63, 60)
@@ -74,23 +75,27 @@ class Player(pygame.sprite.Sprite):
 
     def item_q(self):
         if self.power_health_charge > 0:
-            self.health += ItemLife.BOOST
-            self.power_health_charge -= 1
+            if self.health + ItemLife.BOOST < GAME_VARIABLES.MAX_HEALTH:
+                self.health += ItemLife.BOOST
+                self.power_health_charge -= 1
 
     def item_s(self):
         if self.boost_ms_charge > 0:
-            self.boost_ms += ItemBoostMS.BOOST
-            self.boost_ms_charge -= 1
+            if self.VELOCITY + self.boost_ms + ItemLife.BOOST < GAME_VARIABLES.MAX_MS:
+                self.boost_ms += ItemBoostMS.BOOST
+                self.boost_ms_charge -= 1
 
     def item_d(self):
         if self.boost_attack_charge > 0:
-            self.boost_attack += ItemBoostAttack.BOOST
-            self.boost_attack_charge -= 1
+            if self.boost_attack + ItemBoostAttack.BOOST < GAME_VARIABLES.MAX_ATTACK:
+                self.boost_attack += ItemBoostAttack.BOOST
+                self.boost_attack_charge -= 1
 
     def item_f(self):
         if self.boost_attack_ms_charge > 0:
-            self.boost_attack_ms += ItemBoostAttackMS.BOOST
-            self.boost_attack_ms_charge -= 1
+            if self.boost_attack_ms + ItemBoostAttackMS.BOOST < GAME_VARIABLES.MAX_ATTACK_MS:
+                self.boost_attack_ms += ItemBoostAttackMS.BOOST
+                self.boost_attack_ms_charge -= 1
 
 
 class Red(Player):
@@ -100,8 +105,6 @@ class Red(Player):
         super(Red, self).__init__('assets/players/red.bmp')
         self.rect.x = 500
         self.rect.y = 575
-
-        self.speed = 5
 
     def power_a(self):
         if self.power_a_active:

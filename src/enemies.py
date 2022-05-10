@@ -6,7 +6,7 @@ from src.powers import PowerEnemy
 
 class Enemy(pygame.sprite.Sprite):
     MAX_HEALTH = 20
-    VELOCITY = 2
+    VELOCITY = 1
     HIT = 0
     XP = 0
 
@@ -89,7 +89,7 @@ class Alien(Enemy):
 
 class Alien1(Enemy):
     MAX_HEALTH = 30
-    VELOCITY = 2
+    VELOCITY = 1.5
     HIT = 10
     XP = 50
 
@@ -102,7 +102,7 @@ class Alien1(Enemy):
 
 class Alien2(Enemy):
     MAX_HEALTH = 50
-    VELOCITY = 3
+    VELOCITY = 2
     HIT = 15
     XP = 100
 

@@ -4,7 +4,7 @@ import pygame.sprite
 
 class Item(pygame.sprite.Sprite):
     NAME = ''
-    VELOCITY = 3
+    VELOCITY = 2
     RATIO = 1
     BOOST = 0
     CHARGE = 1
@@ -125,7 +125,7 @@ class ItemBoostAttack(Item):
     NAME = 'ItemBoostAttack'
     VELOCITY = 3
     RATIO = 10
-    BOOST = 5
+    BOOST = 2.5
 
     def __init__(self, game):
         super().__init__('assets/items/item_boost_attack.bmp', game)
@@ -137,7 +137,7 @@ class ItemBoostAttackMS(Item):
     NAME = 'ItemBoostAttackMS'
     VELOCITY = 3
     RATIO = 25
-    BOOST = 3
+    BOOST = 2
 
     def __init__(self, game):
         super().__init__('assets/items/item_boost_attack_ms.bmp', game)
@@ -149,7 +149,7 @@ class ItemBoostMS(Item):
     NAME = 'ItemBoostMS'
     VELOCITY = 3
     RATIO = 40
-    BOOST = 2
+    BOOST = 0.5
 
     def __init__(self, game):
         super().__init__('assets/items/item_boost_ms.bmp', game)
@@ -159,7 +159,7 @@ class ItemBoostMS(Item):
 
 class ItemLife(Item):
     NAME = 'ItemLife'
-    VELOCITY = 2
+    VELOCITY = 1
     RATIO = 25
     BOOST = 5
 

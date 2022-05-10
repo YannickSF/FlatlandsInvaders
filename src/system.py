@@ -31,6 +31,7 @@ class Game:
         self.background = pygame.image.load('assets/background.bmp').convert()
 
         self.pressed = {}
+        self.press = 0
         self.fetch_stats = False
 
         self.player = None
@@ -42,6 +43,7 @@ class Game:
         self.lvl_N1 = GAME_VARIABLES.INIT_LVL_N1
         self.score = 0
         self.xp = 0
+        self.lvl_cycle = 1
 
         self.cycle_alien = 0
         self.cycle_power_z = 0
@@ -82,7 +84,7 @@ class Game:
         # fetch stats TOP
         fetch_line1 = pygame.font.SysFont("monospace", 25)
         fetch_text1 = fetch_line1.render(
-            "|Score:{0:05d} |XP:{1:07d}   |{2}"
+            "|Score:{0:05d} |XP:{1:07d}   |{2} |PV"
                 .format(self.score,
                         self.xp,
                         self.player.NAME,
@@ -94,7 +96,6 @@ class Game:
         fetch_pos1.y = 12
         self.screen.blit(self.background, fetch_pos1, fetch_pos1)
         self.screen.blit(fetch_text1, fetch_pos1)
-        pygame.time.delay(2)
 
     def display_panels_bottom(self):
         # A
@@ -119,7 +120,7 @@ class Game:
         fetch_line1 = pygame.font.SysFont("monospace", 16)
         #
         fetch_text1 = fetch_line1.render(
-            "|{0}[{1}] |H[{2:02d}/{3}] |Ms[{4}] |N1:{5}"
+            "|{0}[{1}] |H[{2:02d}/{3}] |Ms[{4:02.1f}] |N1:{5}"
                 .format(self.player.NAME,
                         self.current_lvl,
                         self.player.health,
@@ -137,22 +138,22 @@ class Game:
         fetch_line2 = pygame.font.SysFont("monospace", 16)
         fetch_text2 = fetch_line2.render(
             "|{0} |{1} |{2} |{3}"
-                .format('{0}[{1:03d}/{2:03d}:{3}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
+                .format('{0}[{1:03.1f}/{2:03.1f}:{3}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
                                                           PowerA.HIT + self.player.boost_attack,
                                                           PowerA.VELOCITY + self.player.boost_attack_ms,
                                                           self.player.power_a_charge)
                         if self.player.power_a_active else '',
-                        '{0}[{1:03d}/{2:03d}:{3:03d}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
+                        '{0}[{1:03.1f}/{2:03.1f}:{3:03.1f}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
                                                               PowerZ.HIT + self.player.boost_attack,
                                                               PowerZ.VELOCITY + self.player.boost_attack_ms,
                                                               self.player.power_z_charge)
                         if self.player.power_z_active else '',
-                        '{0}[{1:03d}/{2:03d}:{3:03d}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
+                        '{0}[{1:03.1f}/{2:03.1f}:{3:03.1f}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
                                                               PowerE.HIT + self.player.boost_attack,
                                                               PowerE.VELOCITY + self.player.boost_attack_ms,
                                                               self.player.power_e_charge)
                         if self.player.power_e_active else '',
-                        '{0}[{1:03d}/{2:03d}:{3:03d}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
+                        '{0}[{1:03.1f}/{2:03.1f}:{3:03.1f}]'.format(pygame.key.name(KEY_ATTACK_BASE).upper(),
                                                               PowerR.HIT + self.player.boost_attack,
                                                               PowerR.VELOCITY + self.player.boost_attack_ms,
                                                               self.player.power_r_charge)
@@ -185,7 +186,7 @@ class Game:
             self.screen.blit(fetch_text2, fetch_pos2)
             self.screen.blit(self.background, fetch_pos3, fetch_pos3)
             self.screen.blit(fetch_text3, fetch_pos3)
-            pygame.time.delay(2)
+            
         else:
             self.screen.blit(self.background, fetch_pos1, fetch_pos1)
             self.screen.blit(self.background, fetch_pos2, fetch_pos2)
@@ -205,17 +206,34 @@ class Game:
             self.player.rect = self.player.rect.move(-(self.player.VELOCITY + self.player.boost_ms), 0)  # move players
 
         # Attack
-        if self.pressed.get(pygame.K_r):
-            self.player.power_r()
+        if self.pressed.get(KEY_ATTACK_BASE):
+            self.press += 1
+            if self.press % 10 == 0 or self.press == 0:
+                self.player.power_a()
+        elif self.pressed.get(KEY_ATTACK_Z):
+            self.press += 1
+            if self.press % 10 == 0 or self.press == 0:
+                self.player.power_z()
+        elif self.pressed.get(KEY_ATTACK_E):
+            self.press += 1
+            if self.press % 10 == 0 or self.press == 0:
+                self.player.power_e()
+        elif self.pressed.get(KEY_ATTACK_R):
+            self.press += 1
+            if self.press % 10 == 0 or self.press == 0:
+                self.player.power_r()
+        else:
+            self.press = 0
 
     def skills_play(self, key):
-        # Attacks
         if key == KEY_ATTACK_BASE:
             self.player.power_a()
         if key == KEY_ATTACK_Z:
             self.player.power_z()
         if key == KEY_ATTACK_E:
             self.player.power_e()
+        if key == KEY_ATTACK_R:
+            self.player.power_r()
 
         # Boost
         if key == KEY_BOOST_HEALTH:
@@ -246,14 +264,19 @@ class Game:
     def _init_level(self):
         self.current_lvl = 0
         self.lvl_N1 = GAME_VARIABLES.INIT_LVL_N1
+        self.lvl_cycle = 1
 
     def update_level(self):
-        if self.current_lvl % 10 == 0 and self.current_lvl > 0:
-            GAME_VARIABLES.evolve_lvl_gap()
-
         if self.lvl_N1 < self.xp:
             self.current_lvl += 1
             self.lvl_N1 += GAME_VARIABLES.LVL_GAP
+            self.lvl_cycle += 1 if self.lvl_cycle < 5 else 1
+
+            if self.current_lvl > 0 and self.current_lvl -1 > 0 and self.current_lvl - 1 % 5 == 0:
+                GAME_VARIABLES.evolve_lvl_gap()
+                GAME_VARIABLES.evolve_enemy_speed(self.current_lvl)
+                GAME_VARIABLES.evolve_enemy_spawn_zone(self.current_lvl)
+                GAME_VARIABLES.evolve_enemy_spawn_number(self.current_lvl)
 
     def spawn_items(self, item_type, sprite=None):
 
@@ -294,57 +317,46 @@ class Game:
 
     def spawn_enemies(self):
 
-        if self.current_lvl % 5 == 0 and self.current_lvl != 0:
-            GAME_VARIABLES.evolve_enemy_speed(self.current_lvl)
+        if self.lvl_cycle == 1:
+            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD == 0:
+                for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
+                    aln = Alien(self, GAME_VARIABLES.ENEMY_SPEED)
+                    aln.rect.y = 50
+                    aln.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
+                    self.enemies.add(aln)
 
-        if self.current_lvl % 10 == 0 and self.current_lvl != 0:
-            GAME_VARIABLES.evolve_enemy_spawn_zone(self.current_lvl)
+        if self.lvl_cycle == 2:
+            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD == 0:
+                for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
+                    aln1 = Alien1(self, GAME_VARIABLES.ENEMY_SPEED)
+                    aln1.rect.y = 50
+                    aln1.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
+                    self.enemies.add(aln1)
 
-        if self.current_lvl % 5 == 0 and self.current_lvl >= 10:
-            GAME_VARIABLES.evolve_enemy_spawn_number(self.current_lvl)
+        if self.lvl_cycle == 3:
+            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD == 0:
+                for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
+                    aln2 = Alien2(self, GAME_VARIABLES.ENEMY_SPEED)
+                    aln2.rect.y = 50
+                    aln2.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
+                    self.enemies.add(aln2)
 
-        if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD == 0:
-            for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
-                aln = Alien(self, GAME_VARIABLES.ENEMY_SPEED)
-                aln.rect.y = 50
-                aln.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
-                self.enemies.add(aln)
+        if self.lvl_cycle == 4:
+            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD == 0:
+                for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
+                    aln3 = Alien3(self, GAME_VARIABLES.ENEMY_SPEED)
+                    aln3.rect.y = 50
+                    aln3.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
+                    self.enemies.add(aln3)
 
-        if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD1 == 0:
-            for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
-                aln1 = Alien1(self, GAME_VARIABLES.ENEMY_SPEED)
-                aln1.rect.y = 50
-                aln1.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
-                self.enemies.add(aln1)
-
-        if self.current_lvl > 7:
-            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD2 == 0:
-                if self.spawn_chance(GAME_VARIABLES.SPAWN_CHANCE_MINIMAL, GAME_VARIABLES.SPAWN_CHANCE_MAXIMAL):
-                    for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER_1)):
-                        aln2 = Alien2(self, GAME_VARIABLES.ENEMY_SPEED)
-                        aln2.rect.y = 50
-                        aln2.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
-                        self.enemies.add(aln2)
-
-        if self.current_lvl > 12:
-            if self.cycle_alien % GAME_VARIABLES.ENEMY_SPAWN_PERIOD2 == 0:
-                if self.spawn_chance(GAME_VARIABLES.SPAWN_CHANCE_MINIMAL, GAME_VARIABLES.SPAWN_CHANCE_MAXIMAL):
-                    for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER_1)):
-                        aln3 = Alien3(self, GAME_VARIABLES.ENEMY_SPEED)
-                        aln3.rect.y = 50
-                        aln3.rect.x = random.randint(GAME_VARIABLES.SPAWN_MINIMAL, GAME_VARIABLES.SPAWN_MAXIMAL)
-                        self.enemies.add(aln3)
-
-        if self.current_lvl % 10 == 0 and self.current_lvl > 0:
-            for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER)):
-                boss = Boss1(self, GAME_VARIABLES.ENEMY_SPEED)
-                boss.rect.y = 70
-                boss.rect.x = 460
-                self.enemies.add(boss)
-
-            return True
-
-        return False
+        if self.lvl_cycle == 5:
+            exist_boss = [i for i in self.enemies if type(i) == Boss1]
+            if not exist_boss:
+                for i in range(random.randint(1, GAME_VARIABLES.ENEMY_SPAWN_NUMBER_BOSS)):
+                    boss = Boss1(self, GAME_VARIABLES.ENEMY_SPEED)
+                    boss.rect.y = 70
+                    boss.rect.x = 460
+                    self.enemies.add(boss)
 
     def spawn_on_die(self, sprite=None):
         items = []
@@ -381,6 +393,7 @@ class Game:
         self.lvl_N1 = GAME_VARIABLES.INIT_LVL_N1
         self.score = 0
         self.xp = 0
+        self.lvl_cycle = 1
 
         self.cycle_alien = 0
         self.cycle_power_z = 0
@@ -433,19 +446,15 @@ class Game:
             if event.type == KEYUP:
                 if not event.key == pygame.K_SPACE:
                     self.pressed[event.key] = False
-        pygame.time.delay(2)
 
         self.movements_play()
         self.player.update_health(self)
         self.screen.blit(self.player.image, self.player.rect)  # draw players
-        pygame.time.delay(2)
 
         # manage player attacks
         for att in self.player.all_attacks:
             att.move(self)
         self.player.all_attacks.draw(self.screen)
-        pygame.time.delay(2)
-
         # manage enemies
         self.cycle_alien += 1
         self.spawn_enemies()
@@ -458,7 +467,6 @@ class Game:
         for enemy in self.enemies:
             enemy.update_health(self)
         self.enemies.draw(self.screen)
-        pygame.time.delay(2)
 
         # manage enemies attacks
 
@@ -466,7 +474,6 @@ class Game:
             for att in nmy.all_attacks:
                 att.move(self)
             nmy.all_attacks.draw(self.screen)
-        pygame.time.delay(2)
 
         # manage items
         self.cycle_power_z += 1
@@ -487,9 +494,9 @@ class Game:
         for itm in self.items:
             itm.move(self)
         self.items.draw(self.screen)
-        pygame.time.delay(2)
 
     def run(self):
+        clock = pygame.time.Clock()
         while self._open_window:
             pygame.display.update()
 
@@ -510,7 +517,6 @@ class Game:
                                          self.play_button_rect)
                         self.start()
                         self.is_playing = True
-                    pygame.time.delay(2)
 
             else:
                 # pause ?
@@ -538,3 +544,5 @@ class Game:
 
                     # Parameters
                     self.display_stats(self.fetch_stats)
+
+            clock.tick(GAME_VARIABLES.FPS)

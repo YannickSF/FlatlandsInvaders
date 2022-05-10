@@ -1,19 +1,13 @@
 
 import pygame
-from src.system import Game
-
-
-TITLE = "Flatland's Invaders"
-DISPLAY_X = 1000
-DISPLAY_Y = 900
-STEP = 20
+from src.system import Game, GAME_VARIABLES
 
 if __name__ == '__main__':
 
     # Initialise screen
     pygame.init()
-    screen = pygame.display.set_mode((DISPLAY_X, DISPLAY_Y))
-    pygame.display.set_caption(TITLE)
+    screen = pygame.display.set_mode((GAME_VARIABLES.DISPLAY_X, GAME_VARIABLES.DISPLAY_Y))
+    pygame.display.set_caption(GAME_VARIABLES.TITLE)
 
     game = Game(screen)
     game.screen.blit(game.background, (0, 0))
