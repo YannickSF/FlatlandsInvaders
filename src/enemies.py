@@ -1,7 +1,8 @@
 
 import pygame
 import random
-from src.powers import PowerEnemy
+from src.variables import GAME_VARIABLES
+from src.powers import PowerEnemy, PowerEnemy1, PowerEnemy2, PowerEnemy3
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -10,7 +11,7 @@ class Enemy(pygame.sprite.Sprite):
     HIT = 0
     XP = 0
 
-    def __init__(self, image, game):
+    def __init__(self, image, game, add_speed=GAME_VARIABLES.ENEMY_SPEED):
         super().__init__()
 
         self.game = game
@@ -20,6 +21,9 @@ class Enemy(pygame.sprite.Sprite):
         self.all_attacks = pygame.sprite.Group()
 
         self.health = 0
+
+        self.VELOCITY += add_speed
+        self.add_speed = add_speed
 
     def remove(self):
         self.game.enemies.remove(self)
@@ -81,10 +85,9 @@ class Alien(Enemy):
     XP = 20
 
     def __init__(self, game, add_speed=None):
-        super().__init__('assets/enemies/alien.bmp', game)
+        super().__init__('assets/enemies/alien.bmp', game, add_speed)
 
         self.health = self.MAX_HEALTH
-        self.VELOCITY += add_speed
 
 
 class Alien1(Enemy):
@@ -94,23 +97,29 @@ class Alien1(Enemy):
     XP = 50
 
     def __init__(self, game, add_speed=None):
-        super().__init__('assets/enemies/alien1.bmp', game)
+        super().__init__('assets/enemies/alien1.bmp', game, add_speed)
 
         self.health = self.MAX_HEALTH
-        self.VELOCITY += add_speed
 
 
 class Alien2(Enemy):
     MAX_HEALTH = 50
-    VELOCITY = 2
+    VELOCITY = 1
     HIT = 15
     XP = 100
 
     def __init__(self, game, add_speed=None):
-        super().__init__('assets/enemies/alien2.bmp', game)
+        super().__init__('assets/enemies/alien2.bmp', game, add_speed)
 
         self.health = self.MAX_HEALTH
-        self.VELOCITY += add_speed
+
+        self.move_period = 60
+        self.attack_period = 60
+        self.move_cycle = 0
+        self.attack_cycle = 0
+        self.CORD = ['E', 'O']
+        self.direction = 'E'
+        self.is_block = 0
 
     def lambda_health_position(self):
         return [self.rect.x - 10, self.rect.y - 10, self.health, 5]
@@ -118,18 +127,61 @@ class Alien2(Enemy):
     def lambda_max_health_position(self):
         return [self.rect.x - 10, self.rect.y - 10, self.MAX_HEALTH, 5]
 
+    def pattern(self, game):
+        if self.rect.y >= 650:
+            self.remove()
+        else:
+            self.rect.y += self.VELOCITY
+
+            if GAME_VARIABLES.ENEMY_MOBILITY_ACTIVE:
+                if self.move_cycle == self.move_period:
+                    self.direction = random.choice(self.CORD)
+                    self.move_cycle = 0
+                else:
+                    if self.direction == 'E':
+                        if 100 <= self.rect.x < 600:
+                            self.rect.x += self.VELOCITY
+                        else:
+                            self.rect.x -= self.VELOCITY
+                            self.direction = random.choice(self.CORD)
+                            self.move_cycle = 0
+
+                    if self.direction == 'O':
+                        if 100 <= self.rect.x - self.VELOCITY < 600:
+                            self.rect.x -= self.VELOCITY
+                        else:
+                            self.rect.x += self.VELOCITY
+                            self.direction = random.choice(self.CORD)
+                            self.move_cycle = 0
+
+                    self.move_cycle += 1
+
+            if GAME_VARIABLES.ENEMY_ATTACK_ACTIVE:
+                if self.attack_cycle == self.attack_period:
+                    self.all_attacks.add(PowerEnemy(self))
+                    self.attack_cycle = 0
+
+                self.attack_cycle += 1
+
 
 class Alien3(Enemy):
     MAX_HEALTH = 70
-    VELOCITY = 3
+    VELOCITY = 1.5
     HIT = 30
     XP = 150
 
     def __init__(self, game, add_speed=None):
-        super().__init__('assets/enemies/alien3.bmp', game)
+        super().__init__('assets/enemies/alien3.bmp', game, add_speed)
 
         self.health = self.MAX_HEALTH
-        self.VELOCITY += add_speed
+
+        self.move_period = 60
+        self.attack_period = 60
+        self.move_cycle = 0
+        self.attack_cycle = 0
+        self.CORD = ['E', 'O']
+        self.direction = 'E'
+        self.is_block = 0
 
     def lambda_health_position(self):
         return [self.rect.x - 15, self.rect.y - 10, self.health, 5]
@@ -137,22 +189,58 @@ class Alien3(Enemy):
     def lambda_max_health_position(self):
         return [self.rect.x - 15, self.rect.y - 10, self.MAX_HEALTH, 5]
 
+    def pattern(self, game):
+        if self.rect.y >= 650:
+            self.remove()
+        else:
+            self.rect.y += self.VELOCITY
+
+            if GAME_VARIABLES.ENEMY_MOBILITY_ACTIVE:
+                if self.move_cycle == self.move_period:
+                    self.direction = random.choice(self.CORD)
+                    self.move_cycle = 0
+                else:
+                    if self.direction == 'E':
+                        if 100 <= self.rect.x < 600:
+                            self.rect.x += self.VELOCITY
+                        else:
+                            self.rect.x -= self.VELOCITY
+                            self.direction = random.choice(self.CORD)
+                            self.move_cycle = 0
+
+                    if self.direction == 'O':
+                        if 100 <= self.rect.x - self.VELOCITY < 600:
+                            self.rect.x -= self.VELOCITY
+                        else:
+                            self.rect.x += self.VELOCITY
+                            self.direction = random.choice(self.CORD)
+                            self.move_cycle = 0
+
+                    self.move_cycle += 1
+
+            if GAME_VARIABLES.ENEMY_ATTACK_ACTIVE:
+                if self.attack_cycle == self.attack_period:
+                    self.all_attacks.add(PowerEnemy1(self))
+                    self.attack_cycle = 0
+
+                self.attack_cycle += 1
+
 
 class Boss1(Enemy):
     MAX_HEALTH = 120
-    VELOCITY = 4
-    HIT = 30
+    VELOCITY = 3
+    HIT = 40
     XP = 1000
 
     def __init__(self, game, add_speed=None):
-        super().__init__('assets/enemies/boss1.bmp', game)
+        super().__init__('assets/enemies/boss1.bmp', game, add_speed)
 
         self.health = self.MAX_HEALTH
-        self.VELOCITY += add_speed
 
-        self.moov_period = 40
-        self.attack_period = 20
-        self.moov_cycle = 0
+        self.move_period = 40
+        self.attack_1_period = 20
+        self.attack_2_period = 60
+        self.move_cycle = 0
         self.attack_cycle = 0
         self.CORD = ['N', 'S', 'E', 'O']
         self.direction = 'S'
@@ -165,15 +253,9 @@ class Boss1(Enemy):
         return [self.rect.x - 50, self.rect.y - 15, self.MAX_HEALTH, 10]
 
     def pattern(self, game):
-        """
-        spawn > déplacement aléatoire > attaque 3-7 boule vers le player > déplacement aléatoire > repeat
-        ne doit pas dépasser les bords
-        sauf en Y moitié de l'écran.
-        """
-        # move cycle
-        if self.moov_cycle == self.moov_period:
+        if self.move_cycle == self.move_period:
             self.direction = random.choice(self.CORD)
-            self.moov_cycle = 0
+            self.move_cycle = 0
         else:
             if self.direction == 'N':
                 if 60 < self.rect.y < 400:
@@ -181,7 +263,7 @@ class Boss1(Enemy):
                 else:
                     self.rect.y += self.VELOCITY
                     self.direction = random.choice(self.CORD)
-                    self.moov_cycle = 0
+                    self.move_cycle = 0
 
             if self.direction == 'S':
                 if 60 < self.rect.y < 400:
@@ -189,7 +271,7 @@ class Boss1(Enemy):
                 else:
                     self.rect.y -= self.VELOCITY
                     self.direction = random.choice(self.CORD)
-                    self.moov_cycle = 0
+                    self.move_cycle = 0
 
             if self.direction == 'E':
                 if 100 <= self.rect.x < 600:
@@ -197,7 +279,7 @@ class Boss1(Enemy):
                 else:
                     self.rect.x -= self.VELOCITY
                     self.direction = random.choice(self.CORD)
-                    self.moov_cycle = 0
+                    self.move_cycle = 0
 
             if self.direction == 'O':
                 if 100 <= self.rect.x - self.VELOCITY < 600:
@@ -205,14 +287,16 @@ class Boss1(Enemy):
                 else:
                     self.rect.x += self.VELOCITY
                     self.direction = random.choice(self.CORD)
-                    self.moov_cycle = 0
+                    self.move_cycle = 0
 
-            self.moov_cycle += 1
+            self.move_cycle += 1
 
         # attack cycle
-        if self.attack_cycle == self.attack_period:
-            self.all_attacks.add(PowerEnemy(self))
-            self.all_attacks.add(PowerEnemy(self))
+        if self.attack_cycle % self.attack_1_period == 0:
+            self.all_attacks.add(PowerEnemy2(self))
+
+        if self.attack_cycle == self.attack_2_period:
+            self.all_attacks.add(PowerEnemy3(self))
             self.attack_cycle = 0
 
         self.attack_cycle += 1

@@ -146,18 +146,20 @@ class PowerR(Power):
 
 
 class PowerEnemy(Power):
-    HIT = 5
-    VELOCITY = 4
+    HIT = 2
+    VELOCITY = 3
 
     def __init__(self, character):
         super().__init__(character)
-        self.image = pygame.image.load('assets/items/power_a.bmp')
+        self.image = pygame.image.load('assets/items/power_enemy.bmp')
         self.rect = self.image.get_rect()
         self.rect.x = self.character.rect.x - self.rect.width / 2 + 10
-        self.rect.y = self.character.rect.y - self.character.rect.height
+        self.rect.y = self.character.rect.y
         self.origin_image = self.image
 
         self.charge = 50
+
+        self.VELOCITY += character.add_speed
 
     def pattern(self):
         self.rect.y += self.VELOCITY
@@ -177,3 +179,104 @@ class PowerEnemy(Power):
             else:
                 self.pattern()
 
+
+class PowerEnemy1(Power):
+    HIT = 3
+    VELOCITY = 3
+
+    def __init__(self, character):
+        super().__init__(character)
+        self.image = pygame.image.load('assets/items/power_enemy_1.bmp')
+        self.rect = self.image.get_rect()
+        self.rect.x = self.character.rect.x - self.rect.width / 2 + 10
+        self.rect.y = self.character.rect.y
+        self.origin_image = self.image
+
+        self.charge = 50
+        self.VELOCITY += character.add_speed
+
+    def pattern(self):
+        self.rect.y += self.VELOCITY
+
+    def context_collides(self, game):
+        collides_player = game.check_collides(self, game.all_player)
+
+        if self.rect.y > 650 or self.rect.y < 50:
+            self.remove()
+        else:
+            if collides_player:
+                game.player.health -= self.HIT
+                self.remove()
+
+                if game.player.health <= 0:
+                    game.game_over()
+            else:
+                self.pattern()
+
+
+class PowerEnemy2(Power):
+    HIT = 5
+    VELOCITY = 4
+
+    def __init__(self, character):
+        super().__init__(character)
+        self.image = pygame.image.load('assets/items/power_enemy_2.bmp')
+        self.rect = self.image.get_rect()
+        self.rect.x = self.character.rect.x - self.rect.width / 2 + 10
+        self.rect.y = self.character.rect.y
+        self.origin_image = self.image
+
+        self.charge = 50
+        self.VELOCITY += character.add_speed
+
+    def pattern(self):
+        self.rect.y += self.VELOCITY
+
+    def context_collides(self, game):
+        collides_player = game.check_collides(self, game.all_player)
+
+        if self.rect.y > 650 or self.rect.y < 50:
+            self.remove()
+        else:
+            if collides_player:
+                game.player.health -= self.HIT
+                self.remove()
+
+                if game.player.health <= 0:
+                    game.game_over()
+            else:
+                self.pattern()
+
+
+class PowerEnemy3(Power):
+    HIT = 10
+    VELOCITY = 4
+
+    def __init__(self, character):
+        super().__init__(character)
+        self.image = pygame.image.load('assets/items/power_enemy_3.bmp')
+        self.rect = self.image.get_rect()
+        self.rect.x = self.character.rect.x - self.rect.width / 2 + 10
+        self.rect.y = self.character.rect.y
+        self.origin_image = self.image
+
+        self.charge = 50
+        self.VELOCITY += character.add_speed
+
+    def pattern(self):
+        self.rect.y += self.VELOCITY
+
+    def context_collides(self, game):
+        collides_player = game.check_collides(self, game.all_player)
+
+        if self.rect.y > 650 or self.rect.y < 50:
+            self.remove()
+        else:
+            if collides_player:
+                game.player.health -= self.HIT
+                self.remove()
+
+                if game.player.health <= 0:
+                    game.game_over()
+            else:
+                self.pattern()

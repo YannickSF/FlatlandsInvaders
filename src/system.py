@@ -260,6 +260,7 @@ class Game:
     def game_over(self):
         self.is_playing = False
         self._game_over = True
+        self.fetch_stats = False
 
     def _init_level(self):
         self.current_lvl = 0
@@ -270,13 +271,16 @@ class Game:
         if self.lvl_N1 < self.xp:
             self.current_lvl += 1
             self.lvl_N1 += GAME_VARIABLES.LVL_GAP
-            self.lvl_cycle += 1 if self.lvl_cycle < 5 else 1
-
-            if self.current_lvl > 0 and self.current_lvl -1 > 0 and self.current_lvl - 1 % 5 == 0:
+            if self.lvl_cycle < 5:
+                self.lvl_cycle += 1
+            else:
+                self.lvl_cycle = 1
                 GAME_VARIABLES.evolve_lvl_gap()
                 GAME_VARIABLES.evolve_enemy_speed(self.current_lvl)
                 GAME_VARIABLES.evolve_enemy_spawn_zone(self.current_lvl)
                 GAME_VARIABLES.evolve_enemy_spawn_number(self.current_lvl)
+                GAME_VARIABLES.activate_enemy_attack()
+                GAME_VARIABLES.activate_enemy_mobility()
 
     def spawn_items(self, item_type, sprite=None):
 

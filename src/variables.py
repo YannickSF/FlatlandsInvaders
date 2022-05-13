@@ -36,6 +36,8 @@ class GameVariables:
     ENEMY_SPEED = 0
     ENEMY_SPAWN_NUMBER = 4
     ENEMY_SPAWN_NUMBER_BOSS = 1
+    ENEMY_ATTACK_ACTIVE = False
+    ENEMY_MOBILITY_ACTIVE = False
 
     def __init__(self):
         self.lvl_evolve = 0
@@ -61,6 +63,12 @@ class GameVariables:
             self.ENEMY_SPAWN_NUMBER += 1
             self.ENEMY_SPAWN_NUMBER_BOSS += 1
             self.enemy_number_evolve = lvl
+
+    def activate_enemy_attack(self):
+        self.ENEMY_ATTACK_ACTIVE = True
+
+    def activate_enemy_mobility(self):
+        self.ENEMY_MOBILITY_ACTIVE = True
 
 
 GAME_VARIABLES = GameVariables()
