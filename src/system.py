@@ -1,6 +1,5 @@
 
 from pygame.locals import *
-from src.variables import GAME_VARIABLES
 from src.characters import Red
 from src.powers import *
 from src.enemies import *

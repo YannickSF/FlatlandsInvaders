@@ -16,3 +16,25 @@ Jeux d'arcade en python
 ## Préférences de jeu : 
 
 - ouvrir le fichier : `preferences.py` et éditer les touches à votre convenance. 
+
+
+---
+
+# Le Jeu 
+
+### Déplacements :
+- Flèches directionnelles
+
+### Attaques :
+ - A : Attaque de base 
+ - Z : Attaque secondaire
+ - E : Attaque de zone
+ - R : Ultime
+
+### Boost : 
+`les visuels des boosts sont visibles dans le fichier 'asset' `
+
+- Q : Vie
+- S : Vitesse du personnage
+- D : Dommage par attaque
+- F : Vitesse d'attaque
